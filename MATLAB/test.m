@@ -1,0 +1,76 @@
+% Define the joint limits (90 degrees to the left and right)
+theta1_min = -90;
+theta1_max = 90;
+theta2_min = -90;
+theta2_max = 90;
+theta3_min = -90;
+theta3_max = 90;
+theta4_min = -90;
+theta4_max = 90;
+
+% Generate random training data
+num_samples = 10000;
+theta1 = (theta1_max - theta1_min) .* rand(num_samples, 2) + theta1_min;
+theta2 = (theta2_max - theta2_min) .* rand(num_samples, 2) + theta2_min;
+theta3 = (theta3_max - theta3_min) .* rand(num_samples, 2) + theta3_min;
+theta4 = (theta4_max - theta4_min) .* rand(num_samples, 2) + theta4_min;
+
+
+
+distance = sqrt((sin(theta1(:,1)) + sin(theta1(:,1) + theta2(:,1)) + sin(theta1(:,1) + theta2(:,1) + theta3(:,1)) + sin(theta1(:,1) + theta2(:,1) + theta3(:,1) + theta4(:,1))).^2 + ...
+                 (cos(theta1(:,1)) + cos(theta1(:,1) + theta2(:,1)) + cos(theta1(:,1) + theta2(:,1) + theta3(:,1)) + cos(theta1(:,1) + theta2(:,1) + theta3(:,1) + theta4(:,1))).^2) - ...
+           sqrt((sin(theta1(:,2)) + sin(theta1(:,2) + theta2(:,2)) + sin(theta1(:,2) + theta2(:,2) + theta3(:,2)) + sin(theta1(:,2) + theta2(:,2) + theta3(:,2) + theta4(:,2))).^2 + ...
+                 (cos(theta1(:,2)) + cos(theta1(:,2) + theta2(:,2)) + cos(theta1(:,2) + theta2(:,2) + theta3(:,2)) + cos(theta1(:,2) + theta2(:,2) + theta3(:,2) + theta4(:,2))).^2);
+
+% Define the neural network architecture
+net = feedforwardnet(10);
+net.layers{1}.transferFcn = 'tansig';
+net.layers{2}.transferFcn = 'purelin';
+net.inputs{1}.size = 4; % set the number of inputs to 4
+net.outputs{end}.size = 4; % set the number of outputs to 4
+
+
+% Train the neural network
+net.trainFcn = 'trainlm';
+net.trainParam.epochs = 1000;
+net.trainParam.goal = 1e-5;
+net.trainParam.min_grad = 1e-7;
+net.trainParam.showWindow = false;
+net = train(net, [theta1 theta2 theta3 theta4]', distance');
+
+% Generate test data
+num_test = 1000;
+
+% Define the joint limits for the test data
+theta_min_test = -90;
+theta_max_test = 90;
+
+% Generate random test data within the joint limits
+theta1_test = (theta_max_test - theta_min_test) .* rand(num_test, 1) + theta_min_test;
+theta2_test = (theta_max_test - theta_min_test) .* rand(num_test, 1) + theta_min_test;
+theta3_test = (theta_max_test - theta_min_test) .* rand(num_test, 1) + theta_min_test;
+theta4_test = (theta_max_test - theta_min_test) .* rand(num_test, 1) + theta_min_test;
+
+% Combine the test data into a matrix
+theta_test = [theta1_test, theta2_test, theta3_test, theta4_test];
+
+% Evaluate the neural network on the test data to generate a continuous output function
+num_points = 100;
+
+% Generate a grid of theta values for each joint within the joint limits
+
+theta_range = linspace(theta_min_test, theta_max_test, num_points);
+[theta1_grid, theta2_grid, theta3_grid, theta4_grid] = ndgrid(theta_range, theta_range, theta_range, theta_range);
+
+% Reshape the grid of theta values into a matrix of test data for the neural network
+theta_test = [theta1_grid(:), theta2_grid(:), theta3_grid(:), theta4_grid(:)];
+
+% Evaluate the neural network on the test data to generate a continuous output function
+distance_test = net(theta_test')';
+
+% Reshape the output into a grid for plotting
+distance_grid = reshape(distance_test, num_points, num_points, num_points, num_points);
+
+theta_test(num_points)
+
+
