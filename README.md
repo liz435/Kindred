@@ -1,2 +1,2 @@
 # Kindred
-Artist statement: Zelong Li is an interdisciplinary artist, designer and researcher who delves into the intersection of technology and art. His research focus on using technology as a means to unveil what the past has revealed about the future. He also incorporate philosophical and metaphysical concepts on the connection between time, space, and distance into my artistic approach. Zelong’s work spans a wide range of tools and mediums, including physical installations and in-browser experiences. His artistic spirit is driven by a desire to challenge what could be invoked through technology. He aims to create engaging and thought-provoking experiences that challenge our perceptions of the world around us.
+
